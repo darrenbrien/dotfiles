@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/Volumes/Development/werk/aws-bb-cmapss/src'
+let g:netrw_dirhist_0='/Volumes/Development/werk/aws-bb-cmapss'
+let g:netrw_dirhist_9='/Volumes/Development/werk/aws-bb-cmapss/data'
+let g:netrw_dirhist_8='/Volumes/Development/werk/aws-bb-cmapss/templates'
+let g:netrw_dirhist_7='/Users/darrenbrien/.config/yamllint'
+let g:netrw_dirhist_6='/Volumes/Development/werk/aws-bb-cmapss/config'
+let g:netrw_dirhist_5='/Volumes/Development/werk/quickstart-datalake-47lining'
+let g:netrw_dirhist_4='/Volumes/Development/werk/quickstart-datalake-47lining/templates'
+let g:netrw_dirhist_3='/Volumes/Development/werk/tfl_traffic_scraper/application/consumer/src'
+let g:netrw_dirhist_2='/Volumes/Development/werk/tfl_traffic_scraper/application/consumer'
