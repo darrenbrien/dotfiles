@@ -1,73 +1,96 @@
 set nocompatible
-filetype off                  
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'gmarik/Vundle.vim'
-" ...
-Plugin 'itchyny/lightline.vim'
-Plugin 'neomake/neomake'
-Plugin 'vim-scripts/indentpython.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-commentary'
-Plugin 'tpope/vim-surround'
-Plugin 'takac/vim-hardtime'
-Plugin 'psf/black', { 'tag': '19.10b0' }
-Plugin 'morhetz/gruvbox'
-Plugin 'alvan/vim-closetag'
-Plugin 'vimwiki/vimwiki'
-Plugin 'lilydjwg/colorizer'
-Plugin 'bfrg/vim-cpp-modern'
-if has('nvim')
-    Plugin 'numirias/semshi'
-    Plugin 'Shougo/deoplete.nvim'
-    Plugin 'deoplete-plugins/deoplete-clang'
-    Plugin 'deoplete-plugins/deoplete-jedi'
-    let g:deoplete#enable_at_startup = 1
-    let g:deoplete#sources#clang#libclang_path = '/usr/local/opt/llvm/lib/libclang.dylib'
-endif
-call vundle#end()            
-" When writing a buffer (no delay).
-call neomake#configure#automake('w')
-" When writing a buffer (no delay), and on normal mode changes (after 750ms).
-call neomake#configure#automake('nw', 750)
-" When reading a buffer (after 1s), and when writing (no delay).
-call neomake#configure#automake('rw', 1000)
-" Full config: when writing or reading a buffer, and on changes in insert and
-" normal mode (after 500ms; no delay when writing).
-call neomake#configure#automake('nrwi', 500)
-let g:neomake_python_pep8_exe = 'flake8'
-let g:neomake_python_enabled_makers = ['pep8', 'flake8', 'pylama', 'pylint']
-let g:neomake_python_pep8_exe = '/Users/darrenbrien/.pyenv/versions/3.7.7/envs/neovim3/bin/pycodestyle'
-let g:neomake_python_flake8_exe = '/Users/darrenbrien/.pyenv/versions/3.7.7/envs/neovim3/bin/flake8'
-let g:neomake_python_pylint_exe = '/Users/darrenbrien/.pyenv/versions/3.7.7/envs/neovim3/bin/pylint'
-let g:neomake_python_pylama_exe = '/Users/darrenbrien/.pyenv/versions/3.7.7/envs/neovim3/bin/pylama'
-let g:neomake_cpp_enabled_makers = ['clang']
-let g:neomake_cpp_clang_maker = {
-   \ 'exe': 'clang++',
-   \ 'args': ['-std=c++2a', '-Wall', '-Wextra', 'Wno-c++98-compat', '-Weverything', '-pedantic', '-Wno-sign-conversion'],
-   \ }
-let g:neomake_list_height = 8
-let g:neomake_open_list = 0
-let g:neomake_place_signs = 1
 
-filetype plugin indent on     
-syntax on
-colorscheme gruvbox
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+" ...
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
+Plug 'itchyny/lightline.vim'
+Plug 'vim-scripts/indentpython.vim'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
+Plug 'takac/vim-hardtime'
+Plug 'lifepillar/gruvbox8'
+Plug 'vimwiki/vimwiki'
+Plug 'lilydjwg/colorizer'
+Plug 'bfrg/vim-cpp-modern'
+Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
+Plug 'szw/vim-maximizer'
+" ...
+call plug#end()
+
+set cot=menuone,noinsert,noselect shm+=c
+let g:diagnostic_virtual_text_prefix = ''
+let g:diagnostic_enable_virtual_text = 1
+
+let g:completion_confirm_key = "\<C-y>"
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+let g:completion_matching_smart_case = 1
+let g:completion_trigger_on_delete = 1
+
+:lua << EOF
+  local nvim_lsp = require('lspconfig')
+  local on_attach = function(_, bufnr)
+    require('completion').on_attach()
+    local opts = { noremap=true, silent=true }
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>xD', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>xr', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>xd', '<cmd>lua vim.lsp.util.show_line_diagnostics()<CR>', opts)
+  end
+  nvim_lsp['clangd'].setup{
+      on_attach = on_attach,
+  }
+  nvim_lsp['dockerls'].setup{
+      on_attach = on_attach,
+  }
+  nvim_lsp['html'].setup{
+      on_attach = on_attach,
+  }
+  nvim_lsp['jsonls'].setup{
+      on_attach = on_attach,
+  }
+  nvim_lsp['pyls'].setup{
+      cmd = {"/Users/darrenbrien/.pyenv/versions/neovim3/bin/pyls"},
+      on_attach = on_attach,
+  }
+  nvim_lsp['vimls'].setup{
+      on_attach = on_attach,
+  }
+  nvim_lsp['yamlls'].setup{
+      on_attach = on_attach,
+  }
+EOF
+
+set completeopt-=preview
+
+colorscheme gruvbox8
 let g:hardtime_default_on = 1
 let g:hardtime_allow_different_key = 1
 let g:hardtime_showmsg = 1
 let g:hardtime_timeout = 500
 "Turn on backup option Where to store backups Make backup before overwriting the current buffer Meaningful backup name, ex: filename@2015-04-05.14:59 Overwrite the original backup file
-au BufWritePre * let &bex = '@' . strftime("%F.%H:%M")
 set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=0 autoindent expandtab fileformat=unix 
 set foldmethod=indent foldlevel=99 splitbelow splitright nu rnu nowrap encoding=utf-8 
 set modeline background=dark ruler laststatus=2 hlsearch wildmenu cursorline cursorcolumn 
 set ignorecase smartcase  
+au BufWritePre * let &bex = '@' . strftime("%F.%H:%M")
 set backup backupdir=~/.vim/backup// writebackup backupcopy=yes
 " need space end of line
 set fillchars+=vert:\ 
 set wildignore+=*.swp,*.ipynb,*.pyc
+
 let g:vimwiki_list = [{'path': '~/vimwiki/',
                       \ 'syntax': 'markdown', 'ext': '.md'}]
 let g:lightline = {
@@ -96,15 +119,14 @@ map! <F3> <C-R>=strftime('%Y-%m-%d %X%Z')<CR>
 nnoremap <leader>f za
 " turn off highlight on enter
 nnoremap <CR> :nohlsearch<CR><CR>
-nnoremap <leader>c :Commentary<cr>
 nnoremap <leader>l <C-W>l
 nnoremap <leader>k <C-W>k
 nnoremap <leader>j <C-W>j
 nnoremap <leader>h <C-W>h
 nnoremap <leader>q <CR><C-W>q
 nnoremap <leader>qq :w<CR><C-W>q
-nnoremap <leader>v :sp<Space>~/.vimrc<CR>
-nnoremap <leader>vv :so<Space>~/.vimrc<CR>
+nnoremap <leader>v :e ~/.vimrc<CR>
+nnoremap <leader>vv :so ~/.vimrc<CR>
 let output = system('git rev-parse --show-toplevel')
 if v:shell_error == 0
     set path+=**
@@ -112,28 +134,12 @@ if v:shell_error == 0
     :execute "cd" . output
 endif
 
-" Some boss split maps
-function ToggleSplitMaxHeight()
-    if (winheight('%') > 25)
-        :execute "resize " . 'wh'
-    else
-        :execute "resize" . 200
-    endif
-endfunction
-function ToggleSplitMaxWidth()
-    if (winwidth('%') > 120)
-        :execute "vertical-resize" . 250
-    else
-        :execute "vertical-resize " . 'winminwidth'
-    endif
-endfunction
 nnoremap <leader>= <C-W>=
-nnoremap <leader>m :call ToggleSplitMaxHeight()<CR>
-nnoremap <leader>n :call ToggleSplitMaxWidth()<CR>
 nnoremap <leader><left> 7<C-W><
 nnoremap <leader><up> 7<C-W>+
 nnoremap <leader><right> 7<C-W>>
 nnoremap <leader><down> 7<C-W>-
+nnoremap <leader>m :MaximizerToggle<CR>
 nnoremap <leader>tt :new term://zsh<CR>
 nnoremap <leader>p :Vexplore<CR>
 nnoremap <leader>/ :%s/
@@ -150,19 +156,6 @@ nnoremap <Space>o :lopen<CR>
 inoremap <expr> <leader><leader> "<C-o>mp<C-o>A" . (nr2char(getchar())) . "<C-o>`p"
 tnoremap <ESC> <C-\><C-n>
 inoremap <leader><Space> <Esc>la
-function JsonFormat(text)
-    let output = system('python -m json.tool', a:text)
-    if v:shell_error == 0
-        return l:output
-    else
-        return a:text
-    endif
-endfunction
-
-augroup my_neomake_qf
-    autocmd!
-    autocmd QuitPre * if &filetype != 'qf' | lclose | endif
-augroup END
 
 " Remove newbie crutches in Insert Mode
 inoremap <Down> <Esc>:echo "No UDLR A <Start>!"<CR>i

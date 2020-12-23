@@ -1,3 +1,5 @@
+export TERM="xterm-256color"
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 alias vim="/usr/local/bin/nvim -w ~/.keystrokes"
 alias vi="/usr/local/bin/nvim -w ~/.keystrokes"
 alias ctags=/usr/local/bin/ctags
