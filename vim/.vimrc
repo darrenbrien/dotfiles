@@ -25,12 +25,15 @@ Plug 'szw/vim-maximizer'
 " ...
 call plug#end()
 
-set cot=menuone,noinsert,noselect shm+=c
+set completeopt=menuone,noinsert,noselect
+set shortmess+=c
 let g:diagnostic_virtual_text_prefix = ''
 let g:diagnostic_enable_virtual_text = 1
 
-let g:completion_confirm_key = "\<C-y>"
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
+let g:completion_trigger_keyword_length = 2
+let g:completion_enable_auto_popup = 1
+let g:completion_timer_cycle = 500
+let g:completion_matching_strategy_list = ['exact']
 let g:completion_matching_smart_case = 1
 let g:completion_trigger_on_delete = 1
 
@@ -60,6 +63,10 @@ let g:completion_trigger_on_delete = 1
   }
   nvim_lsp['jsonls'].setup{
       on_attach = on_attach,
+      settings = {
+        json = { 
+           format = { enable = true }}
+      }   
   }
   nvim_lsp['pyls'].setup{
       cmd = {"/Users/darrenbrien/.pyenv/versions/neovim3/bin/pyls"},
