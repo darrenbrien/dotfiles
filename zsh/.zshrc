@@ -1,12 +1,17 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 export TERM="xterm-256color"
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 alias vim="/usr/local/bin/nvim -w ~/.keystrokes"
 alias vi="/usr/local/bin/nvim -w ~/.keystrokes"
-alias ctags=/usr/local/bin/ctags
 alias ll="ls -l"
 alias la="ls -la"
 alias grep='grep  --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}'
-alias gs='git status'
 alias pa="pyenv activate"
 if [[ -n $VIRTUAL_ENV && -e "${VIRTUAL_ENV}/bin/activate" ]]; then
   source "${VIRTUAL_ENV}/bin/activate"
@@ -23,16 +28,11 @@ eval "$(pyenv virtualenv-init -)"
 export LD_LIBRARY_PATH="/Library/Developer/CommandLineTools/usr/lib/:$LD_LIBRARY_PATH"
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/darrenbrien/.oh-my-zsh"
-
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel9k/powerlevel9k"
-POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-POWERLEVEL9K_RPROMPT_ON_NEWLINE=true
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir newline pyenv vcs)
-POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -92,8 +92,19 @@ POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git osx docker python)
-bindkey -v
+plugins=(
+    git
+    gcloud
+    python
+    vi-mode
+)
+VI_MODE_RESET_PROMPT_ON_MODE_CHANGE=true
+VI_MODE_SET_CURSOR=true
+MODE_INDICATOR="%F{yellow}+%f"
+autoload -U edit-command-line
+# Preferred editor for local and remote sessions
+bindkey -M vicmd E edit-command-line
+
 export KEYTIMEOUT=1
 source $ZSH/oh-my-zsh.sh
 
@@ -104,12 +115,6 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -123,10 +128,15 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 export AWS_PAGER=""
-
+export AWS_DEFAULT_REGION=us-east-1
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/darrenbrien/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/darrenbrien/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/darrenbrien/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/darrenbrien/google-cloud-sdk/completion.zsh.inc'; fi
-alias akubectl=~/.aws/kubectl
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+export AWS_CLI_AUTO_PROMPT=on-partial
+complete -C '/usr/local/Cellar/awscli/2.4.0/bin/aws_completer' aws
