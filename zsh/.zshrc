@@ -5,26 +5,23 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export TERM="xterm-256color"
-export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-alias vim="/usr/local/bin/nvim -w ~/.keystrokes"
-alias vi="/usr/local/bin/nvim -w ~/.keystrokes"
+if [ -n "$TMUX" ]; then
+  export TERM="screen-256color"
+else
+  export TERM="xterm-256color"
+fi
+alias vim="/opt/homebrew/bin/nvim -w ~/.keystrokes"
+alias vi="/opt/homebrew/bin/nvim -w ~/.keystrokes"
 alias ll="ls -l"
 alias la="ls -la"
 alias grep='grep  --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}'
-alias pa="pyenv activate"
-if [[ -n $VIRTUAL_ENV && -e "${VIRTUAL_ENV}/bin/activate" ]]; then
-  source "${VIRTUAL_ENV}/bin/activate"
-fi
+alias aws-nuke="docker run --rm -it -v /Users/darrenbrien/.config/aws-nuke/nuke-config.yml:/home/aws-nuke/config.yml -v /Users/darrenbrien/.aws:/home/aws-nuke/.aws docker.io/rebuy/aws-nuke:latest --profile default --config /home/aws-nuke/config.yml"
 
+export PATH="/Users/darrenbrien/.local/bin:$PATH"
+export PATH="/Users/darrenbrien/.cargo/bin:$PATH"
 eval "$(rbenv init -)"
 export alias ruby=/home/darrenbrien/.rbenv/versions/2.7.1/bin/ruby
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:~/node_modules/.bin:$PATH"
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-eval "$(pyenv virtualenv-init -)"
+export PATH="~/node_modules/.bin:$PATH"
 export LD_LIBRARY_PATH="/Library/Developer/CommandLineTools/usr/lib/:$LD_LIBRARY_PATH"
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/darrenbrien/.oh-my-zsh"
@@ -69,7 +66,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
@@ -93,11 +90,16 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    git
     gcloud
+    git
     python
+    tmux
     vi-mode
+    web-search
+    zsh-autosuggestions
+    zsh-syntax-highlighting
 )
+ZSH_TMUX_AUTOSTART=true
 VI_MODE_RESET_PROMPT_ON_MODE_CHANGE=true
 VI_MODE_SET_CURSOR=true
 MODE_INDICATOR="%F{yellow}+%f"
@@ -105,7 +107,7 @@ autoload -U edit-command-line
 # Preferred editor for local and remote sessions
 bindkey -M vicmd E edit-command-line
 
-export KEYTIMEOUT=1
+export KEYTIMEOUT=10
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -124,11 +126,11 @@ source $ZSH/oh-my-zsh.sh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
-# Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 export AWS_PAGER=""
 export AWS_DEFAULT_REGION=us-east-1
+export GOOGLE_APPLICATION_CREDENTIALS=/Users/darrenbrien/keys/gcp/zenulator-sa.json
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/darrenbrien/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/darrenbrien/google-cloud-sdk/path.zsh.inc'; fi
 
@@ -139,4 +141,41 @@ if [ -f '/Users/darrenbrien/google-cloud-sdk/completion.zsh.inc' ]; then . '/Use
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export AWS_CLI_AUTO_PROMPT=on-partial
-complete -C '/usr/local/Cellar/awscli/2.4.0/bin/aws_completer' aws
+complete -C '/usr/local/Cellar/awscli/2.7.26/bin/aws_completer' aws
+export PATH="/usr/local/opt/llvm/bin:$PATH"
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5A5959,underline"
+
+function cd() {
+  builtin cd "$@"
+
+  if [[ -z "$VIRTUAL_ENV" ]] ; then
+    ## If env folder is found then activate the vitualenv
+      if [[ -d ./.env ]] ; then
+        source ./.env/bin/activate
+      elif [[ -d ./.venv ]] ; then
+        source ./.venv/bin/activate
+      elif [[ -d ../.venv ]] ; then
+        source ../.venv/bin/activate
+      fi
+  else
+    ## check the current folder belong to earlier VIRTUAL_ENV folder
+    # if yes then do nothing
+    # else deactivate
+      parentdir="$(dirname "$VIRTUAL_ENV")"
+      cmd="pwd -P"
+      presdir=$(eval "$cmd")
+      if [[ "$presdir"/ != *"$parentdir"/* ]] ; then
+        deactivate
+      fi
+  fi
+}
+
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completio
+source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
+source /opt/homebrew/opt/chruby/share/chruby/auto.sh
+chruby ruby-3.3.5
+source ~/.venv/bin/activate

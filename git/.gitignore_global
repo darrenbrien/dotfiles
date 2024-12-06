@@ -84,7 +84,6 @@ eggs/
 ehthumbs.db
 env.bak/
 env/
-fake_faces.tar.gz  # Pipeline definition file in argo format for Kubeflow.
 grasp/
 htmlcov/
 images/

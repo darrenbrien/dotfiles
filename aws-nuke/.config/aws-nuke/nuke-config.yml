@@ -17,28 +17,42 @@ regions:
   - us-west-2
   - global
 
-account-blacklist:
+account-blocklist:
   - "999999999999"
 
 resource-types:
   excludes:
-    # - S3Object
-    # - S3Bucket
-    - CloudFormationStack
-    - CloudWatchLogsLogGroup
     - IAMLoginProfile
     - IAMOpenIDConnectProvider
     - IAMPolicy
-    - IAMRole
     - IAMRolePolicy
     - IAMRolePolicyAttachment
-    - IAMUser
-    - IAMUserAccessKey
-    - IAMUserPolicyAttachment
     - IAMVirtualMFADevice
-    - LambdaFunction
     - SNSSubscription
-    - SNSTopic
 
 accounts:
-  "907317471167": {}
+  "907317471167":
+    filters:
+      IAMUser:
+      - "darren"
+      IAMUserPolicyAttachment:
+      - "darren -> AdministratorAccess"
+      IAMUserAccessKey:
+      - "darren -> AKIA5GQCV467SH4RLMIN"
+      SNSTopic:
+      - property : TopicARN
+        value: "arn:aws:sns:us-east-1:907317471167:58860"
+      LambdaFunction:
+      - "DoiT-Management-Stack-NotificationFunction-v3nsgwwwD78y"
+      CloudFormationStack:
+      - property : Name
+        value: "DoiT-Management-Stack"
+      CloudWatchLogsLogGroup:
+      - "/aws/lambda/DoiT-Management-Stack-NotificationFunction-v3nsgwwwD78y"
+      - "/aws/lambda/UserManagementBackend-Dev-Stateless-APIHandler-lwK0udIDAIre"
+      IAMRole:
+      - "OrganizationAccountAccessRole"
+      - "DoiT_Management_Role_DO-NOT-DELETE"
+      - "DoiT-SupportVM839WPV"
+      - "DoiT-Management-Stack-NotificationFunctionRole-1R0IFA2B8PJFQ"
+      - "CloudHealth"
