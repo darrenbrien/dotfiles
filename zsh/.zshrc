@@ -10,8 +10,8 @@ if [ -n "$TMUX" ]; then
 else
   export TERM="xterm-256color"
 fi
-alias vim="/opt/homebrew/bin/nvim -w ~/.keystrokes"
-alias vi="/opt/homebrew/bin/nvim -w ~/.keystrokes"
+alias vim="$(which nvim) -w ~/.keystrokes"
+alias vi="$(which nvim) -w ~/.keystrokes"
 alias ll="ls -l"
 alias la="ls -la"
 alias grep='grep  --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn}'
@@ -19,8 +19,6 @@ alias aws-nuke="docker run --rm -it -v /Users/darrenbrien/.config/aws-nuke/nuke-
 
 export PATH="/Users/darrenbrien/.local/bin:$PATH"
 export PATH="/Users/darrenbrien/.cargo/bin:$PATH"
-eval "$(rbenv init -)"
-export alias ruby=/home/darrenbrien/.rbenv/versions/2.7.1/bin/ruby
 export PATH="~/node_modules/.bin:$PATH"
 export LD_LIBRARY_PATH="/Library/Developer/CommandLineTools/usr/lib/:$LD_LIBRARY_PATH"
 # Path to your oh-my-zsh installation.
@@ -175,7 +173,7 @@ export PATH="/opt/homebrew/opt/curl/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completio
-source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-source /opt/homebrew/opt/chruby/share/chruby/auto.sh
+source $(brew --prefix)/opt/chruby/share/chruby/chruby.sh
+source $(brew --prefix)/opt/chruby/share/chruby/auto.sh
 chruby ruby-3.3.5
 source ~/.venv/bin/activate
